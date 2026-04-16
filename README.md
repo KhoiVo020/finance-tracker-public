@@ -228,16 +228,7 @@ This public version removes private email synchronization from the app flow.
 
 The public demo is designed to run locally with anonymous seeded data. Optional private integrations can be added through environment variables and database configuration, but they are not required to open the app.
 
-## Agent Files
-
-`AGENTS.md` and `CLAUDE.md` are not runtime files. They are instructions for AI coding assistants.
-
-- `AGENTS.md` tells coding agents to read the bundled Next.js 16 docs before changing Next.js code.
-- `CLAUDE.md` points Claude-style agents to `AGENTS.md`.
-
-The app will still run if both files are deleted. Next.js, React, Prisma, and the OCR service do not import them.
-
-Keeping them is useful if you plan to continue using Codex, Claude, or similar tools on this repo. Deleting them only removes that guidance for future AI-assisted development.
+This repository is self-contained for normal development and does not require any AI-agent instruction files. The app can be installed, run, built, and published using only the files documented above.
 
 ## Troubleshooting
 
