@@ -1,36 +1,301 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Finance Tracker Public
 
-## Getting Started
+A public demo version of a personal finance tracker built with Next.js, React, Prisma, and a local Python OCR service.
 
-First, run the development server:
+The app runs in demo mode by default, so it can be opened without connecting a private email account, bank account, or production database. Demo data is seeded in memory and resets when the app process restarts.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Features
+
+- Dashboard with income, expense, and balance summaries.
+- Transaction list with manual add, edit, and delete workflows.
+- Category analytics grouped by income and expense categories.
+- Category manager for custom income and expense categories.
+- Grocery receipt tracking with receipt-level itemization.
+- Grocery price history and grocery group management.
+- Statement upload support for CSV, PDF, and image files.
+- Local OCR service for receipt and image parsing.
+- Demo mode for public sharing without private integrations.
+
+## Tech Stack
+
+- Next.js 16.2.2
+- React 19.2.4
+- TypeScript
+- Prisma 6 with SQLite support for private/local database mode
+- Recharts for charts
+- Python FastAPI OCR service
+- EasyOCR, OpenCV, Pillow, and Uvicorn
+
+## Quick Start on Windows
+
+From the repo root:
+
+```powershell
+cd d:\ANTIGRAVITY\finance-tracker-public
+.\start.bat
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The launcher will:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Create `.env.local` from `.env.example` if it does not exist.
+- Create the Python OCR virtual environment if needed.
+- Install OCR dependencies if needed.
+- Install frontend dependencies if `node_modules` is missing.
+- Start the OCR service on `http://localhost:8000`.
+- Start the Next.js app on `http://localhost:3001`.
+- Open `http://localhost:3001` in your browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Keep the OCR and web app terminal windows open while using the app.
 
-## Learn More
+## Manual Setup
 
-To learn more about Next.js, take a look at the following resources:
+Install frontend dependencies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```powershell
+npm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Create the local environment file:
 
-## Deploy on Vercel
+```powershell
+Copy-Item .env.example .env.local
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Install the OCR service dependencies:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```powershell
+cd python-ocr
+python -m venv venv
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+cd ..
+```
+
+Start the OCR service:
+
+```powershell
+cd python-ocr
+.\venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+In a second terminal, start the web app:
+
+```powershell
+cd d:\ANTIGRAVITY\finance-tracker-public
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:3001
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local`.
+
+```env
+NODE_ENV="development"
+DEMO_MODE="true"
+NEXT_PUBLIC_DEMO_MODE="true"
+
+# Optional database for private/local persistence
+# DATABASE_URL="file:./prisma/dev.db"
+
+# Optional AI features
+GEMINI_API_KEY=""
+
+# Optional OCR / parsing placeholders
+PLAID_CLIENT_ID=""
+PLAID_SECRET=""
+PLAID_ENV="sandbox"
+```
+
+### Demo Mode
+
+Demo mode is enabled by default:
+
+```env
+DEMO_MODE="true"
+NEXT_PUBLIC_DEMO_MODE="true"
+```
+
+In demo mode, the app uses seeded in-memory data instead of requiring a database. This is the recommended mode for the public version.
+
+### Database Mode
+
+For a private/local persistent setup, disable demo mode and provide a SQLite database URL:
+
+```env
+DEMO_MODE="false"
+NEXT_PUBLIC_DEMO_MODE="false"
+DATABASE_URL="file:./prisma/dev.db"
+```
+
+Then generate Prisma client files:
+
+```powershell
+npx prisma generate
+```
+
+If you add migrations later, run the appropriate Prisma migration command for your setup.
+
+## OCR Service
+
+The Next.js app calls the OCR service at:
+
+```text
+http://127.0.0.1:8000
+```
+
+Health check:
+
+```powershell
+Invoke-WebRequest -Uri http://127.0.0.1:8000/health -UseBasicParsing
+```
+
+Expected response:
+
+```json
+{"status":"ok"}
+```
+
+The first OCR run may take longer because EasyOCR may download its model files.
+
+## NPM Scripts
+
+```powershell
+npm run dev
+```
+
+Starts the development server on `http://localhost:3001` using Webpack mode. Webpack mode is used because Turbopack was observed to bind the port but hang during page compilation in this local setup.
+
+```powershell
+npm run build
+```
+
+Creates a production build.
+
+```powershell
+npm start
+```
+
+Starts the production server on `http://localhost:3001`. Run `npm run build` first.
+
+```powershell
+npm run lint
+```
+
+Runs ESLint.
+
+Current note: lint may fail because the Python virtual environment under `python-ocr/venv` is being scanned, and several existing app files still use explicit `any` types. The production build currently passes in demo mode.
+
+## Project Structure
+
+```text
+.
++-- prisma/
+|   +-- schema.prisma
++-- python-ocr/
+|   +-- main.py
+|   +-- grocery_receipt.py
+|   +-- requirements.txt
+|   +-- start.bat
++-- src/
+|   +-- app/
+|   |   +-- actions.ts
+|   |   +-- page.tsx
+|   |   +-- transactions/
+|   |   +-- groceries/
+|   |   +-- categories/
+|   +-- components/
+|   +-- lib/
++-- .env.example
++-- package.json
++-- start.bat
+```
+
+## App Routes
+
+- `/` - dashboard
+- `/transactions` - transaction management
+- `/groceries` - grocery receipts and grocery item tracking
+- `/categories` - category analytics and category management
+
+## Public Release Notes
+
+This public version removes private email synchronization from the app flow.
+
+The public demo is designed to run locally with anonymous seeded data. Optional private integrations can be added through environment variables and database configuration, but they are not required to open the app.
+
+## Agent Files
+
+`AGENTS.md` and `CLAUDE.md` are not runtime files. They are instructions for AI coding assistants.
+
+- `AGENTS.md` tells coding agents to read the bundled Next.js 16 docs before changing Next.js code.
+- `CLAUDE.md` points Claude-style agents to `AGENTS.md`.
+
+The app will still run if both files are deleted. Next.js, React, Prisma, and the OCR service do not import them.
+
+Keeping them is useful if you plan to continue using Codex, Claude, or similar tools on this repo. Deleting them only removes that guidance for future AI-assisted development.
+
+## Troubleshooting
+
+### Port 3001 is already in use
+
+Close the existing terminal running the web app, or find the process:
+
+```powershell
+netstat -aon | findstr ":3001"
+```
+
+Then stop the process by PID:
+
+```powershell
+Stop-Process -Id <PID> -Force
+```
+
+### Port 8000 is already in use
+
+Close the existing OCR terminal, or find the process:
+
+```powershell
+netstat -aon | findstr ":8000"
+```
+
+Then stop the process by PID:
+
+```powershell
+Stop-Process -Id <PID> -Force
+```
+
+### OCR startup is slow
+
+The first run can be slow while EasyOCR initializes or downloads model files. Keep the OCR terminal open until it finishes startup.
+
+### Build complains about `DATABASE_URL`
+
+Use demo mode for the public version:
+
+```env
+DEMO_MODE="true"
+NEXT_PUBLIC_DEMO_MODE="true"
+```
+
+If you intentionally disable demo mode, set `DATABASE_URL` and generate the Prisma client.
+
+## Verification
+
+Useful checks:
+
+```powershell
+npm run build
+Invoke-WebRequest -Uri http://localhost:3001 -UseBasicParsing
+Invoke-WebRequest -Uri http://127.0.0.1:8000/health -UseBasicParsing
+```
+
+Expected results:
+
+- `npm run build` completes successfully.
+- The web app returns HTTP 200.
+- The OCR health endpoint returns `{"status":"ok"}`.

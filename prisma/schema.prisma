@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  amount      Float
+  type        String   // "INCOME", "EXPENSE", "TRANSFER"
+  category    String   // "Credit Card", "Bill", "Salary", null
+  date        DateTime @default(now())
+  description String
+
+  groceryItems GroceryItem[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GroceryItem {
+  id            String      @id @default(uuid())
+  name          String
+  price         Float       // the total price for that line item
+  group         String      @default("Other")
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime    @default(now())
+}
+
+model GroceryReceipt {
+  id             String               @id @default(uuid())
+  merchant       String
+  total          Float
+  subtotal       Float?
+  tax            Float?
+  sourceFileName String?
+  date           DateTime             @default(now())
+
+  items          GroceryReceiptItem[]
+
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+}
+
+model GroceryReceiptItem {
+  id        String         @id @default(uuid())
+  name      String
+  price     Float
+  group     String         @default("Other")
+  receiptId String
+  receipt   GroceryReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime       @default(now())
+}
+
+model GroceryGroup {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  keywords  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  type      String   // "INCOME" or "EXPENSE"
+  keywords  String   // Comma separated keywords for text matching
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

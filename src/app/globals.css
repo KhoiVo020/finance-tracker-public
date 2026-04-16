@@ -1,49 +1,185 @@
+/* Google Font loaded via next/font in layout.tsx for non-render-blocking perf */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color-scheme: dark;
+  --bg-main: #0B0A10;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --bg-sidebar: rgba(15, 14, 22, 0.8);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --accent-teal: #14F1D9;
+  --accent-purple: #9D4EDD;
+  --text-main: #FFFFFF;
+  --text-muted: #8F8C99;
+  --text-hover: #14F1D9;
+  --success: #14F1D9;
+  --danger: #FF4D4D;
+  
+  --font-sans: var(--font-inter, 'Inter', sans-serif);
 }
 
 * {
   box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
-a {
-  color: inherit;
+body {
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(157, 78, 221, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(20, 241, 217, 0.05) 0%, transparent 50%);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base utility classes for layout */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Layout */
+.sidebar {
+  width: 260px;
+  background: var(--bg-sidebar);
+  backdrop-filter: blur(16px);
+  border-right: 1px solid var(--border-color);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  margin-bottom: 3rem;
+  padding-left: 0.5rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  color: var(--text-muted);
   text-decoration: none;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-hover);
+}
+
+.nav-link-active {
+  background: rgba(20, 241, 217, 0.08);
+  color: var(--accent-teal);
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Glassmorphism Card Utility */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+}
+
+/* Typography */
+h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; }
+h3 { font-size: 1.1rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted); }
+.text-muted { color: var(--text-muted); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+
+/* Form and Inputs */
+input, select, textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+option {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-purple);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--accent-purple), #7B2CBF);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.btn-icon {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
   }
 }
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+

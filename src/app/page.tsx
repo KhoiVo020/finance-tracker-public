@@ -1,66 +1,65 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { getTransactions } from './actions';
+import TransactionForm from '@/components/TransactionForm';
+import TransactionList from '@/components/TransactionList';
+import DashboardChart from '@/components/DashboardChart';
+import StatementUploader from '@/components/StatementUploader';
 
-export default function Home() {
+export default async function DashboardPage() {
+  const transactions = await getTransactions();
+
+  // Calculate metrics
+  const monthlyIncome = transactions
+    .filter((t: any) => t.type === 'INCOME')
+    .reduce((sum: number, t: any) => sum + t.amount, 0);
+
+  const monthlyExpense = transactions
+    .filter((t: any) => t.type === 'EXPENSE')
+    .reduce((sum: number, t: any) => sum + t.amount, 0);
+
+  const totalBalance = monthlyIncome - monthlyExpense;
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h3 className="text-muted">Overview</h3>
+          <h1>Dashboard</h1>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <StatementUploader />
+          <TransactionForm />
         </div>
-      </main>
+      </div>
+
+      {/* Hero Metrics */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+        <div className="glass-card">
+          <h3 className="text-muted">Total Balance</h3>
+          <h2 style={{ fontSize: '2rem', marginBottom: 0 }}>${totalBalance.toFixed(2)}</h2>
+        </div>
+        <div className="glass-card">
+          <h3 className="text-muted">Total Income</h3>
+          <h2 className="text-success" style={{ fontSize: '2rem', marginBottom: 0 }}>${monthlyIncome.toFixed(2)}</h2>
+        </div>
+        <div className="glass-card">
+          <h3 className="text-muted">Total Expenses</h3>
+          <h2 className="text-danger" style={{ fontSize: '2rem', marginBottom: 0 }}>${monthlyExpense.toFixed(2)}</h2>
+        </div>
+      </div>
+
+      {/* Chart Section */}
+      <div className="glass-card" style={{ padding: '2rem' }}>
+        <h2>Cash Flow Analytics</h2>
+        <DashboardChart data={transactions} />
+      </div>
+
+      {/* Recent Transactions */}
+      <div>
+        <h2 style={{ marginBottom: '1.5rem' }}>Recent Transactions</h2>
+        <TransactionList transactions={transactions.slice(0, 5)} />
+      </div>
+
     </div>
   );
 }
