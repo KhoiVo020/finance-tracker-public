@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { addGroceryGroup, addManualGroceryItem, deleteGroceryGroup, updateGroceryGroup } from '@/app/actions';
 import { Check, Plus, Save, Search, ShoppingBasket, Trash2 } from 'lucide-react';
+import { useLanguage } from '@/lib/language';
 
 type GroceryGroup = {
   id: string;
@@ -48,8 +49,8 @@ function money(value: number) {
   return `$${value.toFixed(2)}`;
 }
 
-function shortDate(value: string) {
-  return new Date(value).toLocaleDateString();
+function shortDate(value: string, locale?: string) {
+  return new Date(value).toLocaleDateString(locale);
 }
 
 function todayInputValue() {
@@ -71,6 +72,7 @@ export default function GroceryTracker({
   groups: GroceryGroup[];
   uploader: ReactNode;
 }) {
+  const { language, t } = useLanguage();
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('All');
@@ -94,6 +96,7 @@ export default function GroceryTracker({
     () => ['All', ...Array.from(new Set(groups.map(group => group.name)))],
     [groups]
   );
+  const dateLocale = language === 'vi' ? 'vi-VN' : undefined;
 
   const filteredRows = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -138,14 +141,14 @@ export default function GroceryTracker({
         merchant: manualMerchant,
         date: manualDate,
       });
-      setManualMessage(`Saved ${manualName.trim()} to grocery price tracking.`);
+      setManualMessage(t('grocery.savedManual', { name: manualName.trim() }));
       setManualName('');
       setManualPrice('');
       setManualMerchant('');
       setManualDate(todayInputValue());
       router.refresh();
     } catch (error: unknown) {
-      alert(error instanceof Error ? error.message : 'Failed to add grocery item');
+      alert(error instanceof Error ? error.message : t('grocery.addFailed'));
     } finally {
       setIsAddingManual(false);
     }
@@ -165,7 +168,7 @@ export default function GroceryTracker({
 
   async function handleDeleteGroup(group: GroceryGroup) {
     if (group.name === 'Other') return;
-    if (!confirm(`Delete the ${group.name} grocery group? Existing saved items keep their current group text.`)) {
+    if (!confirm(t('grocery.deleteGroupConfirm', { name: group.name }))) {
       return;
     }
     setSavingId(group.id);
@@ -186,10 +189,10 @@ export default function GroceryTracker({
           <div>
             <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
               <ShoppingBasket size={22} style={{ color: 'var(--accent-teal)' }} />
-              Add Manual Item
+              {t('grocery.addManualItem')}
             </h2>
             <p className="text-muted" style={{ lineHeight: 1.5 }}>
-              Add a grocery item and price when you do not have a receipt scan handy.
+              {t('grocery.manualItemHint')}
             </p>
           </div>
 
@@ -198,7 +201,7 @@ export default function GroceryTracker({
               <input
                 value={manualName}
                 onChange={(e) => setManualName(e.target.value)}
-                placeholder="Item name"
+                placeholder={t('grocery.itemName')}
                 required
               />
               <input
@@ -207,7 +210,7 @@ export default function GroceryTracker({
                 type="number"
                 step="0.01"
                 min="0.01"
-                placeholder="Price"
+                placeholder={t('grocery.price')}
                 required
               />
             </div>
@@ -226,18 +229,18 @@ export default function GroceryTracker({
                 required
               />
             </div>
-            <input
-              value={manualMerchant}
-              onChange={(e) => setManualMerchant(e.target.value)}
-              placeholder="Store (optional)"
-            />
+              <input
+                value={manualMerchant}
+                onChange={(e) => setManualMerchant(e.target.value)}
+                placeholder={t('grocery.storeOptional')}
+              />
             <button
               type="submit"
               className="btn"
               disabled={isAddingManual}
               style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center' }}
             >
-              <Plus size={16} /> {isAddingManual ? 'Adding Item...' : 'Add Item & Price'}
+              <Plus size={16} /> {isAddingManual ? t('grocery.addingItem') : t('grocery.addItemPrice')}
             </button>
           </form>
 
@@ -251,35 +254,35 @@ export default function GroceryTracker({
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
         <div className="glass-card">
-          <h3 className="text-muted">Tracked Items</h3>
+          <h3 className="text-muted">{t('grocery.trackedItems')}</h3>
           <h2 style={{ fontSize: '2rem', marginBottom: 0 }}>{rows.length}</h2>
         </div>
         <div className="glass-card">
-          <h3 className="text-muted">Logged Purchases</h3>
+          <h3 className="text-muted">{t('grocery.loggedPurchases')}</h3>
           <h2 style={{ fontSize: '2rem', marginBottom: 0 }}>{totalPurchases}</h2>
         </div>
         <div className="glass-card">
-          <h3 className="text-muted">Lowest Saved Price</h3>
+          <h3 className="text-muted">{t('grocery.lowestSavedPrice')}</h3>
           <h2 className="text-success" style={{ fontSize: '2rem', marginBottom: 0 }}>{money(lowestTracked)}</h2>
         </div>
       </div>
 
       <section className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
-          <h2 style={{ marginBottom: 0 }}>Price History</h2>
+          <h2 style={{ marginBottom: 0 }}>{t('grocery.priceHistory')}</h2>
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', minWidth: 420 }}>
             <label style={{ position: 'relative', flex: 1 }}>
               <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search items or stores"
+                placeholder={t('grocery.search')}
                 style={{ paddingLeft: '2.3rem' }}
               />
             </label>
             <select value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)} style={{ maxWidth: 180 }}>
               {groupNames.map(group => (
-                <option key={group} value={group}>{group}</option>
+                <option key={group} value={group}>{group === 'All' ? t('grocery.all') : group}</option>
               ))}
             </select>
           </div>
@@ -289,21 +292,21 @@ export default function GroceryTracker({
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.92rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-                <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>Item</th>
-                <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>Group</th>
-                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>Last</th>
-                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>Average</th>
-                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>Low</th>
-                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>High</th>
-                <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>Cheapest Store</th>
-                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>Count</th>
+                <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{t('grocery.item')}</th>
+                <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{t('grocery.group')}</th>
+                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{t('grocery.last')}</th>
+                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{t('grocery.average')}</th>
+                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{t('grocery.low')}</th>
+                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{t('grocery.high')}</th>
+                <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{t('grocery.cheapestStore')}</th>
+                <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', color: 'var(--text-muted)', fontWeight: 600 }}>{t('grocery.count')}</th>
               </tr>
             </thead>
             <tbody>
               {filteredRows.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-muted" style={{ padding: '2rem 0.5rem', textAlign: 'center' }}>
-                    No grocery items match this view.
+                    {t('grocery.noMatch')}
                   </td>
                 </tr>
               ) : filteredRows.map(row => (
@@ -325,9 +328,9 @@ export default function GroceryTracker({
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '2rem', alignItems: 'start' }}>
         <section className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h2 style={{ marginBottom: 0 }}>Receipt History</h2>
+          <h2 style={{ marginBottom: 0 }}>{t('grocery.receiptHistory')}</h2>
           {receipts.length === 0 ? (
-            <p className="text-muted">No grocery receipts saved yet.</p>
+            <p className="text-muted">{t('grocery.noReceipts')}</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {receipts.map(receipt => (
@@ -335,7 +338,7 @@ export default function GroceryTracker({
                   <div>
                     <div style={{ fontWeight: 700 }}>{receipt.merchant}</div>
                     <div className="text-muted" style={{ fontSize: '0.82rem' }}>
-                      {shortDate(receipt.date)} &bull; {receipt.itemCount} item{receipt.itemCount === 1 ? '' : 's'}
+                      {shortDate(receipt.date, dateLocale)} &bull; {receipt.itemCount} {t(receipt.itemCount === 1 ? 'grocery.item' : 'grocery.items')}
                       {receipt.sourceFileName ? ` &bull; ${receipt.sourceFileName}` : ''}
                     </div>
                   </div>
@@ -345,16 +348,16 @@ export default function GroceryTracker({
             </div>
           )}
 
-          <h2 style={{ marginBottom: 0 }}>Recent Receipt Items</h2>
+          <h2 style={{ marginBottom: 0 }}>{t('grocery.recentItems')}</h2>
           {recentItems.length === 0 ? (
-            <p className="text-muted">Upload a grocery receipt to start tracking prices.</p>
+            <p className="text-muted">{t('grocery.uploadStart')}</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {recentItems.map(item => (
                 <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.75rem', padding: '0.75rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <div>
                     <div style={{ fontWeight: 700 }}>{item.name}</div>
-                    <div className="text-muted" style={{ fontSize: '0.82rem' }}>{item.group} &bull; {item.merchant} &bull; {shortDate(item.date)}</div>
+                    <div className="text-muted" style={{ fontSize: '0.82rem' }}>{item.group} &bull; {item.merchant} &bull; {shortDate(item.date, dateLocale)}</div>
                   </div>
                   <div style={{ color: 'var(--accent-teal)', fontWeight: 800 }}>{money(item.price)}</div>
                 </div>
@@ -364,12 +367,12 @@ export default function GroceryTracker({
         </section>
 
         <section className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h2 style={{ marginBottom: 0 }}>Grocery Groups</h2>
+          <h2 style={{ marginBottom: 0 }}>{t('grocery.groups')}</h2>
           <form onSubmit={handleAddGroup} style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
-            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New group name" />
-            <textarea value={newKeywords} onChange={(e) => setNewKeywords(e.target.value)} placeholder="Keywords, separated by commas" rows={3} />
+            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('grocery.newGroup')} />
+            <textarea value={newKeywords} onChange={(e) => setNewKeywords(e.target.value)} placeholder={t('grocery.keywords')} rows={3} />
             <button type="submit" className="btn" disabled={savingId === 'new'} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center' }}>
-              <Plus size={16} /> {savingId === 'new' ? 'Adding...' : 'Add Group'}
+              <Plus size={16} /> {savingId === 'new' ? t('grocery.addingGroup') : t('grocery.addGroup')}
             </button>
           </form>
 
@@ -389,10 +392,10 @@ export default function GroceryTracker({
                     aria-label={`${group.name} keywords`}
                   />
                 </div>
-                <button className="btn-icon" title="Save group" onClick={() => handleSaveGroup(group.id)} disabled={savingId === group.id}>
+                <button className="btn-icon" title={t('grocery.saveGroupTitle')} onClick={() => handleSaveGroup(group.id)} disabled={savingId === group.id}>
                   <Save size={16} />
                 </button>
-                <button className="btn-icon" title="Delete group" onClick={() => handleDeleteGroup(group)} disabled={savingId === group.id || group.name === 'Other'}>
+                <button className="btn-icon" title={t('grocery.deleteGroupTitle')} onClick={() => handleDeleteGroup(group)} disabled={savingId === group.id || group.name === 'Other'}>
                   <Trash2 size={16} />
                 </button>
               </div>

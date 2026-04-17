@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { isDemoMode, listDemoTransactions } from '@/lib/demo-store';
 import { BarChart3 } from 'lucide-react';
 import CategoryManager from '@/components/CategoryManager';
+import { T } from '@/lib/language';
 
 export const metadata = { title: 'Categories – Finance Tracker' };
 
@@ -57,7 +58,9 @@ function CategoryBar({ name, amount, total, count, type }: {
         <div>
           <span style={{ fontWeight: 600, fontSize: '0.92rem' }}>{group}</span>
           {sub && <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginLeft: '0.4rem' }}>/ {sub}</span>}
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginLeft: '0.5rem' }}>({count} txn{count !== 1 ? 's' : ''})</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginLeft: '0.5rem' }}>
+            ({count} <T k={count === 1 ? 'categories.txn' : 'categories.txns'} />)
+          </span>
         </div>
         <span style={{ fontWeight: 700, color, fontSize: '0.95rem' }}>
           {type === 'INCOME' ? '+' : '-'}${amount.toFixed(2)}
@@ -71,7 +74,9 @@ function CategoryBar({ name, amount, total, count, type }: {
           boxShadow: `0 0 8px ${color}60`,
         }} />
       </div>
-      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'right' }}>{pct.toFixed(1)}% of total</div>
+      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'right' }}>
+        {pct.toFixed(1)}<T k="categories.ofTotal" />
+      </div>
     </div>
   );
 }
@@ -90,10 +95,10 @@ export default async function CategoriesPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <h3 className="text-muted">Spending Insights</h3>
+          <h3 className="text-muted"><T k="categories.eyebrow" /></h3>
           <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
             <BarChart3 size={28} style={{ color: 'var(--accent-purple)' }} />
-            Categories
+            <T k="categories.title" />
           </h1>
         </div>
         <CategoryManager />
@@ -102,15 +107,15 @@ export default async function CategoriesPage() {
       {/* Summary cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
         <div className="glass-card" style={{ textAlign: 'center' }}>
-          <p className="text-muted" style={{ marginBottom: '0.25rem', fontSize: '0.85rem' }}>Total Expenses</p>
+          <p className="text-muted" style={{ marginBottom: '0.25rem', fontSize: '0.85rem' }}><T k="categories.totalExpenses" /></p>
           <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f43f5e', margin: 0 }}>${totalExpense.toFixed(2)}</p>
         </div>
         <div className="glass-card" style={{ textAlign: 'center' }}>
-          <p className="text-muted" style={{ marginBottom: '0.25rem', fontSize: '0.85rem' }}>Total Income</p>
+          <p className="text-muted" style={{ marginBottom: '0.25rem', fontSize: '0.85rem' }}><T k="categories.totalIncome" /></p>
           <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#22c55e', margin: 0 }}>${totalIncome.toFixed(2)}</p>
         </div>
         <div className="glass-card" style={{ textAlign: 'center' }}>
-          <p className="text-muted" style={{ marginBottom: '0.25rem', fontSize: '0.85rem' }}>Categories Tracked</p>
+          <p className="text-muted" style={{ marginBottom: '0.25rem', fontSize: '0.85rem' }}><T k="categories.tracked" /></p>
           <p style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-teal)', margin: 0 }}>{data.length}</p>
         </div>
       </div>
@@ -120,10 +125,10 @@ export default async function CategoriesPage() {
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 0 }}>
             <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#f43f5e', display: 'inline-block' }} />
-            Expenses
+            <T k="categories.expenses" />
           </h2>
           {expenses.length === 0
-            ? <p className="text-muted">No expenses recorded yet.</p>
+            ? <p className="text-muted"><T k="categories.noExpenses" /></p>
             : expenses.map(d => (
                 <CategoryBar
                   key={d.category}
@@ -141,10 +146,10 @@ export default async function CategoriesPage() {
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: 0 }}>
             <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
-            Income
+            <T k="categories.income" />
           </h2>
           {incomes.length === 0
-            ? <p className="text-muted">No income recorded yet.</p>
+            ? <p className="text-muted"><T k="categories.noIncome" /></p>
             : incomes.map(d => (
                 <CategoryBar
                   key={d.category}

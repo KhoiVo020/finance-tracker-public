@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { addTransaction, getGroceryGroups, scanReceipt } from '@/app/actions';
 import { X, Plus, Camera, Loader2, ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
 import { useCategories } from '@/lib/useCategories';
+import { useLanguage } from '@/lib/language';
 import './modal.css';
 
 interface GroceryItem { name: string; price: number; group?: string; }
@@ -17,6 +18,7 @@ interface ReceiptScanResult {
 }
 
 export default function TransactionForm() {
+  const { t } = useLanguage();
   const { categories: dbCats, loading: catLoading } = useCategories();
   const [isOpen, setIsOpen]         = useState(false);
   const [loading, setLoading]       = useState(false);
@@ -107,7 +109,7 @@ export default function TransactionForm() {
       setType('EXPENSE');
       setShowGrocery(false);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to scan receipt';
+      const message = err instanceof Error ? err.message : t('grocery.scanFailed');
       alert(message);
     } finally {
       setIsScanning(false);
@@ -120,14 +122,14 @@ export default function TransactionForm() {
   return (
     <>
       <button className="btn" onClick={() => setIsOpen(true)} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-        <Plus size={20} /> Add Transaction
+        <Plus size={20} /> {t('transactions.add')}
       </button>
 
       {isOpen && (
         <div className="modal-overlay">
           <div className="modal-content glass-card" style={{ maxWidth: '520px', width: '95vw' }}>
             <div className="modal-header">
-              <h3>New Transaction</h3>
+              <h3>{t('transactions.new')}</h3>
               <button className="btn-icon" onClick={() => { setIsOpen(false); resetForm(); }}><X size={20} /></button>
             </div>
 
@@ -135,12 +137,12 @@ export default function TransactionForm() {
               {isScanning ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--accent-teal)' }}>
                   <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                  <span>Reading receipt...</span>
+                  <span>{t('transactions.readingReceipt')}</span>
                 </div>
               ) : (
                 <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--accent-teal)', fontWeight: 600 }}>
                   <Camera size={20} />
-                  <span>Import receipt photo</span>
+                  <span>{t('transactions.scanReceipt')}</span>
                   <input type="file" accept="image/*,application/pdf" onChange={handleScan} style={{ display: 'none' }} />
                 </label>
               )}
@@ -156,8 +158,8 @@ export default function TransactionForm() {
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>
                     <ShoppingCart size={16} style={{ color: '#22c55e' }} />
                     {groceryItems.length === 0
-                      ? 'Add Grocery Items Manually'
-                      : `Grocery Items (${groceryItems.length}) - subtotal $${groceryTotal.toFixed(2)}`}
+                      ? t('grocery.manualPanelEmpty')
+                      : t('grocery.manualPanelCount', { count: groceryItems.length, total: groceryTotal.toFixed(2) })}
                   </span>
                   {showGrocery ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
@@ -168,7 +170,7 @@ export default function TransactionForm() {
                       <input
                         value={newGroceryName}
                         onChange={(e) => setNewGroceryName(e.target.value)}
-                        placeholder="Item name"
+                        placeholder={t('grocery.itemName')}
                         disabled={isScanning}
                       />
                       <select
@@ -177,7 +179,7 @@ export default function TransactionForm() {
                         disabled={isScanning}
                       >
                         {groceryGroups.length === 0 ? (
-                          <option value="Other">Other</option>
+                          <option value="Other">{t('grocery.other')}</option>
                         ) : groceryGroups.map(group => (
                           <option key={group.id} value={group.name}>{group.name}</option>
                         ))}
@@ -188,13 +190,13 @@ export default function TransactionForm() {
                         type="number"
                         min="0.01"
                         step="0.01"
-                        placeholder="Price"
+                        placeholder={t('grocery.price')}
                         disabled={isScanning}
                       />
                       <button
                         type="button"
                         className="btn-icon"
-                        title="Add grocery item"
+                        title={t('grocery.addItemTitle')}
                         onClick={addManualGroceryLine}
                         disabled={isScanning || !newGroceryName.trim() || Number(newGroceryPrice) < 0.01}
                         style={{ color: '#22c55e' }}
@@ -205,16 +207,16 @@ export default function TransactionForm() {
 
                     {groceryItems.length === 0 ? (
                       <p className="text-muted" style={{ fontSize: '0.82rem', lineHeight: 1.5 }}>
-                        Add item names and prices here to track grocery price history with this transaction.
+                        {t('grocery.manualHint')}
                       </p>
                     ) : (
                       <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
                           <thead>
                             <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                              <th style={{ textAlign: 'left', padding: '0.3rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>Item</th>
-                              <th style={{ textAlign: 'left', padding: '0.3rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>Group</th>
-                              <th style={{ textAlign: 'right', padding: '0.3rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>Price</th>
+                              <th style={{ textAlign: 'left', padding: '0.3rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>{t('grocery.item')}</th>
+                              <th style={{ textAlign: 'left', padding: '0.3rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>{t('grocery.group')}</th>
+                              <th style={{ textAlign: 'right', padding: '0.3rem 0', color: 'var(--text-muted)', fontWeight: 500 }}>{t('grocery.price')}</th>
                               <th style={{ width: 34 }} />
                             </tr>
                           </thead>
@@ -222,13 +224,13 @@ export default function TransactionForm() {
                             {groceryItems.map((item, i) => (
                               <tr key={`${item.name}-${i}`} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                                 <td style={{ padding: '0.3rem 0', color: 'var(--text-main)' }}>{item.name}</td>
-                                <td style={{ padding: '0.3rem 0', color: 'var(--text-muted)' }}>{item.group || 'Other'}</td>
+                                <td style={{ padding: '0.3rem 0', color: 'var(--text-muted)' }}>{item.group || t('grocery.other')}</td>
                                 <td style={{ padding: '0.3rem 0', textAlign: 'right', color: '#22c55e', fontWeight: 600 }}>${item.price.toFixed(2)}</td>
                                 <td style={{ padding: '0.3rem 0', textAlign: 'right' }}>
                                   <button
                                     type="button"
                                     className="btn-icon"
-                                    title="Remove grocery item"
+                                    title={t('grocery.removeItemTitle')}
                                     onClick={() => removeGroceryLine(i)}
                                     style={{ width: 28, height: 28, color: 'var(--danger)' }}
                                   >
@@ -248,21 +250,21 @@ export default function TransactionForm() {
             {/* ── Form fields ── */}
             <form onSubmit={handleSubmit} className="modal-form">
               <div className="form-group">
-                <label>Amount ($)</label>
+                <label>{t('transactions.amount')}</label>
                 <input type="number" step="0.01" required placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} disabled={isScanning} />
               </div>
               <div className="form-group">
-                <label>Type</label>
+                <label>{t('transactions.type')}</label>
                 <select required value={type} onChange={(e) => setType(e.target.value)} disabled={isScanning}>
-                  <option value="EXPENSE">Expense</option>
-                  <option value="INCOME">Income</option>
-                  <option value="TRANSFER">Transfer</option>
+                  <option value="EXPENSE">{t('transactions.expense')}</option>
+                  <option value="INCOME">{t('transactions.income')}</option>
+                  <option value="TRANSFER">{t('transactions.transfer')}</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>Category</label>
+                <label>{t('transactions.category')}</label>
                 <select required value={category} onChange={(e) => setCategory(e.target.value)} disabled={isScanning || catLoading}>
-                  <option value="" disabled>{catLoading ? 'Loading...' : 'Select category...'}</option>
+                  <option value="" disabled>{catLoading ? t('common.loading') : t('transactions.selectCategory')}</option>
                   {(type === 'INCOME' 
                     ? dbCats.filter(c => c.type === 'INCOME').map(c => c.name) 
                     : type === 'EXPENSE' 
@@ -273,11 +275,11 @@ export default function TransactionForm() {
                 </select>
               </div>
               <div className="form-group">
-                <label>Description</label>
-                <input type="text" required placeholder="Grocery shopping, Internet bill..." value={description} onChange={(e) => setDescription(e.target.value)} disabled={isScanning} />
+                <label>{t('transactions.description')}</label>
+                <input type="text" required placeholder={t('transactions.descriptionPlaceholder')} value={description} onChange={(e) => setDescription(e.target.value)} disabled={isScanning} />
               </div>
               <button type="submit" className="btn submit-btn" disabled={loading || isScanning}>
-                {loading ? 'Saving...' : 'Save Transaction'}
+                {loading ? t('transactions.saving') : t('transactions.save')}
               </button>
             </form>
           </div>

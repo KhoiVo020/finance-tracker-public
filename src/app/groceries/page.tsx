@@ -2,6 +2,7 @@ import { ShoppingCart } from 'lucide-react';
 import { getGroceryGroups, getGroceryPriceHistory, getGroceryReceipts } from '@/app/actions';
 import GroceryTracker from '@/components/GroceryTracker';
 import GroceryReceiptUploader from '@/components/GroceryReceiptUploader';
+import { T } from '@/lib/language';
 
 export const metadata = { title: 'Grocery Receipts - Finance Tracker' };
 
@@ -15,10 +16,10 @@ export default async function GroceriesPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <div>
-        <h3 className="text-muted">Price Tracking</h3>
+        <h3 className="text-muted"><T k="grocery.eyebrow" /></h3>
         <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
           <ShoppingCart size={30} style={{ color: 'var(--accent-teal)' }} />
-          Grocery Receipts
+          <T k="grocery.title" />
         </h1>
       </div>
 

@@ -85,6 +85,38 @@ body {
   color: var(--accent-teal);
 }
 
+.language-toggle {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.language-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(20, 241, 217, 0.35);
+}
+
+.language-toggle span {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.language-toggle strong {
+  color: var(--accent-teal);
+  font-size: 0.95rem;
+}
+
 .main-content {
   flex: 1;
   padding: 2rem 3rem;
@@ -182,4 +214,3 @@ input:focus, select:focus, textarea:focus {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
-

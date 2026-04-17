@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { T } from '@/lib/language';
 
 // Lazy-load the heavy Recharts chart — avoid bundling it in the initial JS
 // and prevent SSR dimension warnings
@@ -16,7 +17,7 @@ const LazyChart = dynamic(() => import('./DashboardChartInner'), {
       background: 'rgba(255,255,255,0.02)',
       borderRadius: '12px',
     }}>
-      Loading chart…
+      <T k="common.chartLoading" />
     </div>
   ),
 });
@@ -24,4 +25,3 @@ const LazyChart = dynamic(() => import('./DashboardChartInner'), {
 export default function DashboardChart({ data }: { data: any[] }) {
   return <LazyChart data={data} />;
 }
-

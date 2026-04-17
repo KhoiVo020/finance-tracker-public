@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { X, Loader2 } from 'lucide-react';
 import { updateTransaction } from '@/app/actions';
 import { useCategories } from '@/lib/useCategories';
+import { useLanguage } from '@/lib/language';
 import './modal.css';
 
 interface Transaction {
@@ -23,6 +24,7 @@ export default function EditTransactionModal({
   transaction: Transaction;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const { categories: dbCats, loading: catLoading } = useCategories();
@@ -72,14 +74,14 @@ export default function EditTransactionModal({
       <div className="modal-content glass-card">
         {/* Header */}
         <div className="modal-header">
-          <h3>Edit Transaction</h3>
+          <h3>{t('transactions.editTitle')}</h3>
           <button className="btn-icon" onClick={onClose}><X size={20} /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
           {/* Amount */}
           <div className="form-group">
-            <label>Amount ($)</label>
+            <label>{t('transactions.amount')}</label>
             <input
               type="number"
               step="0.01"
@@ -91,7 +93,7 @@ export default function EditTransactionModal({
 
           {/* Date */}
           <div className="form-group">
-            <label>Date</label>
+            <label>{t('transactions.date')}</label>
             <input
               type="date"
               required
@@ -102,19 +104,19 @@ export default function EditTransactionModal({
 
           {/* Type */}
           <div className="form-group">
-            <label>Type</label>
+            <label>{t('transactions.type')}</label>
             <select required value={type} onChange={(e) => handleTypeChange(e.target.value)}>
-              <option value="EXPENSE">Expense</option>
-              <option value="INCOME">Income</option>
-              <option value="TRANSFER">Transfer</option>
+              <option value="EXPENSE">{t('transactions.expense')}</option>
+              <option value="INCOME">{t('transactions.income')}</option>
+              <option value="TRANSFER">{t('transactions.transfer')}</option>
             </select>
           </div>
 
           {/* Category */}
           <div className="form-group">
-            <label>Category</label>
+            <label>{t('transactions.category')}</label>
             <select required value={category} onChange={(e) => setCategory(e.target.value)} disabled={catLoading}>
-              <option value="" disabled>{catLoading ? 'Loading...' : 'Select category...'}</option>
+              <option value="" disabled>{catLoading ? t('common.loading') : t('transactions.selectCategory')}</option>
               {categoryOptions.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -123,7 +125,7 @@ export default function EditTransactionModal({
 
           {/* Description */}
           <div className="form-group">
-            <label>Description</label>
+            <label>{t('transactions.description')}</label>
             <input
               type="text"
               required
@@ -133,7 +135,7 @@ export default function EditTransactionModal({
           </div>
 
           <button type="submit" className="btn submit-btn" disabled={saving}>
-            {saving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : 'Save Changes'}
+            {saving ? <><Loader2 size={16} className="animate-spin" /> {t('transactions.saving')}</> : t('transactions.saveChanges')}
           </button>
         </form>
       </div>

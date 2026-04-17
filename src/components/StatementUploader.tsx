@@ -3,8 +3,10 @@
 import React, { useState, useRef } from 'react';
 import { FileText, Loader2, UploadCloud, Check } from 'lucide-react';
 import { processCSVStatement, processLocalDocument } from '@/app/actions';
+import { useLanguage } from '@/lib/language';
 
 export default function StatementUploader() {
+  const { t } = useLanguage();
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,10 +29,10 @@ export default function StatementUploader() {
         formData.append('document', file);
         res = await processLocalDocument(formData);
       }
-      setSuccessMsg(`Extracted ${res.count} transactions!`);
+      setSuccessMsg(t('statement.extracted', { count: res.count }));
       setTimeout(() => setSuccessMsg(null), 5000);
     } catch (err: any) {
-      alert(err.message || 'Failed to process document');
+      alert(err.message || t('statement.failed'));
     } finally {
        setIsProcessing(false);
        if (fileInputRef.current) fileInputRef.current.value = '';
@@ -53,7 +55,7 @@ export default function StatementUploader() {
         }}
       >
         {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />}
-        {isProcessing ? 'Parsing Document...' : 'Upload Statement'}
+        {isProcessing ? t('statement.parsing') : t('statement.upload')}
       </button>
 
       <input 

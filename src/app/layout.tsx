@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Sidebar from '@/components/Sidebar';
+import { LanguageProvider } from '@/lib/language';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -22,13 +23,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <div className="app-container">
-          <Sidebar />
-          
-          <main className="main-content">
-            {children}
-          </main>
-        </div>
+        <LanguageProvider>
+          <div className="app-container">
+            <Sidebar />
+            
+            <main className="main-content">
+              {children}
+            </main>
+          </div>
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { Trash2, Pencil } from 'lucide-react';
 import { deleteTransaction } from '@/app/actions';
 import EditTransactionModal from './EditTransactionModal';
+import { useLanguage } from '@/lib/language';
 
 export default function TransactionList({ transactions }: { transactions: any[] }) {
+  const { t } = useLanguage();
   const [editing, setEditing] = useState<string | null>(null);
 
   if (transactions.length === 0) {
-    return <div className="text-muted" style={{ padding: '2rem 0', textAlign: 'center' }}>No transactions recorded yet.</div>;
+    return <div className="text-muted" style={{ padding: '2rem 0', textAlign: 'center' }}>{t('transactions.empty')}</div>;
   }
 
   const editingTx = transactions.find((t) => t.id === editing);
@@ -47,7 +49,7 @@ export default function TransactionList({ transactions }: { transactions: any[] 
               {/* Edit */}
               <button
                 className="btn-icon"
-                title="Edit transaction"
+                title={t('transactions.editTitle')}
                 onClick={() => setEditing(tx.id)}
                 style={{ color: 'var(--accent-teal)', opacity: 0.8 }}
               >
@@ -57,7 +59,7 @@ export default function TransactionList({ transactions }: { transactions: any[] 
               {/* Delete */}
               <button
                 className="btn-icon"
-                title="Delete transaction"
+                title={t('transactions.deleteTitle')}
                 onClick={() => deleteTransaction(tx.id)}
               >
                 <Trash2 size={17} />

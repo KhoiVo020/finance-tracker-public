@@ -1,11 +1,13 @@
 'use client';
 
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { useLanguage } from '@/lib/language';
 
 export default function DashboardChartInner({ data }: { data: any[] }) {
+  const { language, t } = useLanguage();
   // Aggregate data by date
   const chartData = data.reduce((acc: any[], curr) => {
-    const dateStr = new Date(curr.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const dateStr = new Date(curr.date).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', day: 'numeric' });
     const existing = acc.find(item => item.date === dateStr);
     
     if (existing) {
@@ -24,7 +26,7 @@ export default function DashboardChartInner({ data }: { data: any[] }) {
   if (chartData.length === 0) {
     return (
       <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-        No chart data available. Add some transactions!
+        {t('common.noChartData')}
       </div>
     );
   }
@@ -49,8 +51,8 @@ export default function DashboardChartInner({ data }: { data: any[] }) {
             contentStyle={{ backgroundColor: 'var(--bg-main)', borderColor: 'var(--border-color)', borderRadius: '12px' }}
             itemStyle={{ color: 'var(--text-main)' }}
           />
-          <Area type="monotone" dataKey="income" stroke="var(--accent-teal)" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={3} />
-          <Area type="monotone" dataKey="expense" stroke="var(--danger)" fillOpacity={1} fill="url(#colorExpense)" strokeWidth={3} />
+          <Area type="monotone" dataKey="income" name={t('transactions.income')} stroke="var(--accent-teal)" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={3} />
+          <Area type="monotone" dataKey="expense" name={t('transactions.expense')} stroke="var(--danger)" fillOpacity={1} fill="url(#colorExpense)" strokeWidth={3} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
