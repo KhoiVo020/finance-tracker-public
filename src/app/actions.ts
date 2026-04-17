@@ -57,6 +57,30 @@ type GroceryReceiptScanResult = {
   items: GroceryReceiptScanItem[];
   raw_rows?: string[];
 };
+type GroceryReceiptHistoryItem = {
+  id: string;
+  name: string;
+  price: number;
+  group: string;
+  createdAt: Date;
+  receipt: {
+    id: string;
+    merchant: string;
+    date: Date;
+  };
+};
+type GroceryTransactionHistoryItem = {
+  id: string;
+  name: string;
+  price: number;
+  group: string;
+  createdAt: Date;
+  transaction: {
+    id: string;
+    description: string;
+    date: Date;
+  };
+};
 let ocrServiceStartPromise: Promise<void> | null = null;
 
 async function isOcrServiceUp() {
@@ -603,7 +627,7 @@ export async function getGroceryPriceHistory() {
   ]);
 
   const items = [
-    ...receiptItems.map(item => ({
+    ...receiptItems.map((item: GroceryReceiptHistoryItem) => ({
       id: `receipt-${item.id}`,
       name: item.name,
       price: item.price,
@@ -612,7 +636,7 @@ export async function getGroceryPriceHistory() {
       date: item.receipt.date,
       createdAt: item.createdAt,
     })),
-    ...transactionItems.map(item => ({
+    ...transactionItems.map((item: GroceryTransactionHistoryItem) => ({
       id: `transaction-${item.id}`,
       name: item.name,
       price: item.price,
