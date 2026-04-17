@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title>Finance Tracker</title>
+  <rect width="512" height="512" rx="96" fill="#0B0A10"/>
+  <path d="M120 340h272" fill="none" stroke="#14F1D9" stroke-width="28" stroke-linecap="round"/>
+  <path d="M150 304l72-74 58 54 92-118" fill="none" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="150" cy="304" r="22" fill="#14F1D9"/>
+  <circle cx="222" cy="230" r="22" fill="#9D4EDD"/>
+  <circle cx="280" cy="284" r="22" fill="#14F1D9"/>
+  <circle cx="372" cy="166" r="22" fill="#9D4EDD"/>
+  <path d="M256 404c48 0 87-19 87-43s-39-43-87-43-87 19-87 43 39 43 87 43z" fill="#9D4EDD" opacity=".26"/>
+</svg>

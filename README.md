@@ -47,6 +47,24 @@ The launcher will:
 
 Keep the OCR and web app terminal windows open while using the app.
 
+## Android Deployment Path
+
+The Android-ready path is to deploy this app as a hosted PWA and wrap it with a Trusted Web Activity (TWA). That keeps the existing Next.js Server Actions, Prisma access, AI parsing, and OCR integration on hosted services while Android opens the production HTTPS app fullscreen.
+
+See the step-by-step guide:
+
+```text
+docs/android-deployment.md
+```
+
+The short version:
+
+- Deploy the Next.js app to a Node-capable host.
+- Deploy `python-ocr/main.py` as a separate HTTPS OCR API.
+- Set `NEXT_PUBLIC_APP_URL` to the production app URL.
+- Set `OCR_SERVICE_URL` to the hosted OCR API URL.
+- Generate the Android wrapper with Bubblewrap from `https://your-domain.example/manifest.webmanifest`.
+
 ## Manual Setup
 
 Install frontend dependencies:
@@ -98,6 +116,7 @@ Copy `.env.example` to `.env.local`.
 NODE_ENV="development"
 DEMO_MODE="true"
 NEXT_PUBLIC_DEMO_MODE="true"
+NEXT_PUBLIC_APP_URL="http://localhost:3001"
 
 # Optional database for private/local persistence
 # DATABASE_URL="file:./prisma/dev.db"
@@ -105,7 +124,8 @@ NEXT_PUBLIC_DEMO_MODE="true"
 # Optional AI features
 GEMINI_API_KEY=""
 
-# Optional OCR / parsing placeholders
+# Optional OCR / parsing features
+OCR_SERVICE_URL="http://127.0.0.1:8000"
 PLAID_CLIENT_ID=""
 PLAID_SECRET=""
 PLAID_ENV="sandbox"
@@ -146,6 +166,12 @@ The Next.js app calls the OCR service at:
 
 ```text
 http://127.0.0.1:8000
+```
+
+Override this for hosted deployments with:
+
+```env
+OCR_SERVICE_URL="https://your-ocr-service.example"
 ```
 
 Health check:

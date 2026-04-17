@@ -23,7 +23,8 @@ import {
   updateDemoTransaction,
 } from '@/lib/demo-store';
 
-const OCR_SERVICE_URL = 'http://127.0.0.1:8000';
+const DEFAULT_OCR_SERVICE_URL = 'http://127.0.0.1:8000';
+const OCR_SERVICE_URL = (process.env.OCR_SERVICE_URL || DEFAULT_OCR_SERVICE_URL).replace(/\/+$/, '');
 
 const DEFAULT_GROCERY_GROUPS = [
   { name: 'Produce', keywords: 'apple,banana,orange,lettuce,tomato,onion,potato,carrot,broccoli,spinach,berries,avocado,pepper,cucumber' },
@@ -67,6 +68,15 @@ async function isOcrServiceUp() {
   }
 }
 
+function isLocalOcrService() {
+  try {
+    const { hostname } = new URL(OCR_SERVICE_URL);
+    return hostname === '127.0.0.1' || hostname === 'localhost' || hostname === '0.0.0.0';
+  } catch {
+    return false;
+  }
+}
+
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -88,6 +98,10 @@ async function getResponseErrorMessage(res: Response) {
 
 async function startOcrService() {
   if (await isOcrServiceUp()) return;
+  if (!isLocalOcrService()) {
+    throw new Error(`OCR service is unavailable at ${OCR_SERVICE_URL}. Check OCR_SERVICE_URL and make sure the hosted OCR API is running.`);
+  }
+
   if (!ocrServiceStartPromise) {
     ocrServiceStartPromise = (async () => {
       const [{ spawn }, path, fs] = await Promise.all([
